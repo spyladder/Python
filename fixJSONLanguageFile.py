@@ -6,6 +6,7 @@ import json
 import sys, getopt
 
 def main(argv):
+	# Args management
 	inputFileName = ""
 	outputFileName = ""
 	try:
@@ -23,47 +24,67 @@ def main(argv):
 		elif opt in ("-o", "--ofile"):
 			outputFileName = arg
 
-
 	if inputFileName == "":
 		BASE_DIR = os.getcwd()
-		# fileName = "localizables.en_US"
-		# fileName = "localizables.test"
-		fileName = "localizables.en_US_ori"
-		# fileName = "localizables.en_US_bad"
-		inputFileName = BASE_DIR + "/" + fileName + ".json"
+		fileName = "localizables.de_DE_ori.json"
+		# fileName = "localizables.test.json"
+		# fileName = "localizables.en_US_ori.json"
+		inputFileName = BASE_DIR + "/" + fileName
 
 	if outputFileName == "":
 		outputFileName = inputFileName.replace('.json', '_m.json')
 
+
+	# Input file opening
 	try:
 		inputFile = open(inputFileName, "r", encoding='utf-8')
 	except IOError:
 		print('Cannot open', inputFileName)
 		sys.exit()
 
-	try:
-		jsonObj = json.loads(inputFile.read())
-	except UnicodeDecodeError as e:
-		print(e)
-		startIndex = e.args[2] - 10
-		endIndex = e.args[2] + 20
-		print(e.args[1][startIndex:endIndex])
-	except json.decoder.JSONDecodeError as e:
-		print(e)
-	except ValueError as e:
-		print(type(e))
-		print(e)
-	else:
+	# File reading
+	str = inputFile.read()
+
+	# Remove an unexpected character (0xEFBBBF)
+	trashChar = bytes.fromhex('efbbbf').decode()
+	str = str.replace(trashChar, '')
+
+	lines = str.split('\n')
+
+	# JSON parsing
+	isOk = False
+	while not isOk:
+		# Remove last comma before '}'
+		str = str.replace(', \n}', ' \n}') 
 		try:
-			outputFile = open(outputFileName, "w", encoding='utf-8')
-		except IOError:
-			print('Cannot open', outputFileName)
+			jsonObj = json.loads(str)
+		except UnicodeDecodeError as e:
+			print(e)
+			startIndex = e.args[2] - 10
+			endIndex = e.args[2] + 20
+			print(e.args[1][startIndex:endIndex])
+		except json.decoder.JSONDecodeError as e:
+			print(e)
+			print(e.colno, e.lineno, e.pos, e.msg)
+			del lines[e.lineno-1]
+			str = '\n'.join(lines)
+			# TODO: write in error file the error description
+
+		except ValueError as e:
+			print(type(e))
+			print(e)
 		else:
-			json.dump(jsonObj, outputFile, sort_keys = True, indent = 4)
-			outputFile.close()
+			isOk = True
+			try:
+				outputFile = open(outputFileName, "w", encoding='utf-8')
+			except IOError:
+				print('Cannot open', outputFileName)
+			else:
+				json.dump(jsonObj, outputFile, sort_keys = True, indent = 4)
+				outputFile.close()
 
 	inputFile.close()
 
-
+# Call of the main function in stand alone execution
 if __name__ == "__main__":
 	main(sys.argv[1:])

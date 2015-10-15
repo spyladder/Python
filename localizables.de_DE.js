@@ -1,4 +1,4 @@
-{ 
+var localize = { 
 "3667":"Erste Schritte", 
 "3668":"Liste der Anwendungen", 
 "3669":"Kostenstelle Nr.", 
@@ -13360,4 +13360,4 @@
 "665624_LD":"Es existiert keine Datei zum Download", 
 "665624_SA":"Es existiert keine Datei zum Download", 
 "665624_LA":"Es existiert keine Datei zum Download", 
-}
+}; 
