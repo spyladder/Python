@@ -52,7 +52,12 @@ def main(argv):
 	lines = str.split('\n')
 
 	# JSON parsing
+	# We try until no error remains
+	# For each error found, a log is added in [inputFileName]_err.txt
+	# and the line containing the error is removed from the JSON
 	isOk = False
+	errFile = None
+
 	while not isOk:
 		# Remove last comma before '}'
 		str = str.replace(', \n}', ' \n}') 
@@ -66,9 +71,12 @@ def main(argv):
 		except json.decoder.JSONDecodeError as e:
 			print(e)
 			print(e.colno, e.lineno, e.pos, e.msg)
+			if errFile == None:
+				errFile = open(inputFileName.replace('.json', '_err.txt'), "w", encoding='utf-8')
+			errFile.write(lines[e.lineno-1] + '\n')
+			errFile.write('-> Line %i, %s\n\n' % (e.lineno, e.msg))
 			del lines[e.lineno-1]
 			str = '\n'.join(lines)
-			# TODO: write in error file the error description
 
 		except ValueError as e:
 			print(type(e))
@@ -84,6 +92,8 @@ def main(argv):
 				outputFile.close()
 
 	inputFile.close()
+	if errFile != None:
+		errFile.close()
 
 # Call of the main function in stand alone execution
 if __name__ == "__main__":
