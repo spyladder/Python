@@ -4,6 +4,7 @@
 import os
 import json
 import sys, getopt
+import re
 
 def main(argv):
 	# Args management
@@ -26,7 +27,7 @@ def main(argv):
 
 	if inputFileName == "":
 		BASE_DIR = os.getcwd()
-		fileName = "localizables.de_DE_ori.json"
+		fileName = "localizables.en_CA.json"
 		# fileName = "localizables.test.json"
 		# fileName = "localizables.en_US_ori.json"
 		inputFileName = BASE_DIR + "/" + fileName
@@ -60,7 +61,8 @@ def main(argv):
 
 	while not isOk:
 		# Remove last comma before '}'
-		str = str.replace(', \n}', ' \n}') 
+		# str = str.replace(', \n}', ' \n}') 
+		str = re.sub(',\s*}', '\n}', str)
 		try:
 			jsonObj = json.loads(str)
 		except UnicodeDecodeError as e:
@@ -68,9 +70,9 @@ def main(argv):
 			startIndex = e.args[2] - 10
 			endIndex = e.args[2] + 20
 			print(e.args[1][startIndex:endIndex])
-		except json.decoder.JSONDecodeError as e:
+		# except json.decoder.JSONDecodeError as e:
+		except ValueError as e:
 			print(e)
-			print(e.colno, e.lineno, e.pos, e.msg)
 			if errFile == None:
 				errFile = open(inputFileName.replace('.json', '_err.txt'), "w", encoding='utf-8')
 			errFile.write(lines[e.lineno-1] + '\n')
@@ -78,9 +80,6 @@ def main(argv):
 			del lines[e.lineno-1]
 			str = '\n'.join(lines)
 
-		except ValueError as e:
-			print(type(e))
-			print(e)
 		else:
 			isOk = True
 			try:
