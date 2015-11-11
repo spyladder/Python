@@ -1,6 +1,3 @@
-localizables.de_DE_ori_err.txt
-localizables.en_CA_m.json
-localizables.en_CA_ori.json
-localizables.en_UK_ori_err.txt
-localizables.en_UK_ori_m.json
-localizables_err.txt
+*_ori.json
+*_m.json
+*_err.txt
