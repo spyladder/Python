@@ -4,12 +4,13 @@
 from tkinter import * 
 from tkinter import filedialog
 import os
+import shutil
 
 class Window:
 	def __init__(self, master):
 		self.master = master
-		self.flashDir = StringVar()
-		self.flashDir.set("C:/flash")
+		self.flashRoot = StringVar()
+		self.flashRoot.set("C:")
 		self.flashRepo = StringVar()
 		self.flashRepo.set("C:/flash_repository")
 		self.flashRepo.trace("w",
@@ -19,15 +20,15 @@ class Window:
 		self.flashFrame = Frame(master)
 		self.flashFrame.pack()
 		# Flash label
-		self.chooseFlashLabel = Label(self.flashFrame, text="Flash directory:")
+		self.chooseFlashLabel = Label(self.flashFrame, text="Root of the flash directory:")
 		self.chooseFlashLabel.pack(side=TOP, anchor=NW)
 		# Flash input
-		self.flashEntry = Entry(self.flashFrame, textvariable=self.flashDir,
+		self.flashEntry = Entry(self.flashFrame, textvariable=self.flashRoot,
 			width=60)
 		self.flashEntry.pack(side=LEFT)
 		# Flash button
 		self.chooseFlashButton = Button(self.flashFrame, text="Open",
-			command=lambda: self.selectDir(self.flashDir))
+			command=lambda: self.selectDir(self.flashRoot))
 		self.chooseFlashButton.pack(side=RIGHT)
 
 		# Repo frame
@@ -82,8 +83,16 @@ class Window:
 	def selectFlash(self):
 		curselection = self.flashList.curselection()
 		if len(curselection) > 0:
-			curselection = curselection[0]
-			print(self.flashList.get(curselection))
+			selectedDir = self.flashRepo.get() + "/" + self.flashList.get(
+				curselection[0])
+			flashDir = self.flashRoot.get() + "/flash"
+
+			if os.path.exists(flashDir):
+				shutil.rmtree(flashDir)
+			try:
+				shutil.copytree(selectedDir, flashDir)
+			except IOError as why:
+				print(why)
 
 
 # Main
