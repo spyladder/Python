@@ -3,6 +3,7 @@
  
 from tkinter import * 
 from tkinter import filedialog
+from tkinter.messagebox import *
 import os
 import shutil
 
@@ -56,7 +57,7 @@ class Window:
 		self.flashList.pack()
 		# Select button
 		self.selectButton = Button(self.listFrame, text="Select",
-			command=lambda: self.selectFlash())
+			command=self.selectFlash)
 		self.selectButton.pack()
 
 		self.fillFlashList()
@@ -82,17 +83,22 @@ class Window:
 
 	def selectFlash(self):
 		curselection = self.flashList.curselection()
-		if len(curselection) > 0:
+		if len(curselection) == 0:
+			showwarning('Warning', 'Please select a flash directory.')
+		else:
 			selectedDir = self.flashRepo.get() + "/" + self.flashList.get(
 				curselection[0])
 			flashDir = self.flashRoot.get() + "/flash"
 
-			if os.path.exists(flashDir):
-				shutil.rmtree(flashDir)
 			try:
-				shutil.copytree(selectedDir, flashDir)
-			except IOError as why:
-				print(why)
+				shutil.rmtree(flashDir)
+			except Exception as e:
+				showerror("Error", e)
+			else:
+				try:
+					shutil.copytree(selectedDir, flashDir)
+				except Exception as e:
+					showerror("Error", e)
 
 
 # Main
