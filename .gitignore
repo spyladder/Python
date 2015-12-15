@@ -2,3 +2,5 @@
 *_m.json
 *_err.txt
 *.orig
+utils/__pycache__/*
+conf.*

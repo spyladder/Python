@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
- 
+
+import sys
+# Add my python workspace for Windows
+sys.path.insert(0, "C:/Workspace/Python")
+
 from tkinter import * 
 from tkinter import filedialog
 from tkinter.messagebox import *
 import os
 import shutil
+from utils.confManager import *
 
 class Window:
-	def __init__(self, master):
+	def __init__(self, master, confMgr):
 		self.master = master
+		self.confMgr = confMgr
 		self.flashRoot = StringVar()
 		self.flashRoot.set("C:")
 		self.flashRepo = StringVar()
@@ -62,6 +68,7 @@ class Window:
 
 		self.fillFlashList()
 
+	# Displays a file dialog to select a directory
 	def selectDir(self, inputEntry):
 		folder = filedialog.askdirectory(
 			parent = self.master,
@@ -102,7 +109,8 @@ class Window:
 
 
 # Main
+confMgr = ConfManager("conf.json")
 root = Tk()
 root.title("Flash manager")
-window = Window(root)
+window = Window(root, confMgr)
 root.mainloop()
