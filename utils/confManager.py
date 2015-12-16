@@ -15,10 +15,9 @@ class ConfManager:
 				inputFile = open(self.fileName, "r", encoding='utf-8')
 				self.conf = json.loads(inputFile.read())
 				inputFile.close()
-			except IOError:
+			except:
 				self.conf = {}
 		else:
-			print(self.fileName, "not isfile!")
 			self.conf = {}
 
 	def saveConf(self):

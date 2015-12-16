@@ -16,10 +16,14 @@ class Window:
 	def __init__(self, master, confMgr):
 		self.master = master
 		self.confMgr = confMgr
+		self.conf = confMgr.getConf()
+		self.initConf()
 		self.flashRoot = StringVar()
-		self.flashRoot.set("C:")
+		self.flashRoot.set(self.conf.get("flashRoot"))
+		self.flashRoot.trace("w",
+			lambda name, index, mode: self.flashEntryUpdated())
 		self.flashRepo = StringVar()
-		self.flashRepo.set("C:/flash_repository")
+		self.flashRepo.set(self.conf.get("flashRepo"))
 		self.flashRepo.trace("w",
 			lambda name, index, mode: self.repoEntryUpdated())
 
@@ -68,6 +72,15 @@ class Window:
 
 		self.fillFlashList()
 
+		self.master.protocol("WM_DELETE_WINDOW", self.onClosing)
+
+	# Create missing parameters in conf and set them with default values
+	def initConf(self):
+		if not self.conf.get("flashRoot"):
+			self.conf["flashRoot"] = "C:"
+		if not self.conf.get("flashRepo"):
+			self.conf["flashRepo"] = "C:/flash_repository"
+
 	# Displays a file dialog to select a directory
 	def selectDir(self, inputEntry):
 		folder = filedialog.askdirectory(
@@ -77,9 +90,12 @@ class Window:
 
 		inputEntry.set(folder)
 
-
 	def repoEntryUpdated(self):
 		self.fillFlashList()
+		self.conf["flashRepo"] = self.flashRepo.get()
+
+	def flashEntryUpdated(self):
+		self.conf["flashRoot"] = self.flashRoot.get()
 
 	def fillFlashList(self):
 		self.flashList.delete(0, END)
@@ -107,6 +123,9 @@ class Window:
 				except Exception as e:
 					showerror("Error", e)
 
+	def onClosing(self):
+		self.confMgr.setConf(self.conf, True)
+		self.master.destroy()
 
 # Main
 confMgr = ConfManager("conf.json")
