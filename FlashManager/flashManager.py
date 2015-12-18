@@ -19,29 +19,29 @@ class Window(Frame):
 
 		self.confMgr = confMgr
 		self.conf = confMgr.getConf()
-		self.initConf()
+		self._initConf()
 		self.flashRoot = StringVar()
 		self.flashRoot.set(self.conf.get("flashRoot"))
 		self.flashRoot.trace("w",
-			lambda name, index, mode: self.flashEntryUpdated())
+			lambda name, index, mode: self._flashEntryUpdated())
 		self.flashRepo = StringVar()
 		self.flashRepo.set(self.conf.get("flashRepo"))
 		self.flashRepo.trace("w",
-			lambda name, index, mode: self.repoEntryUpdated())
+			lambda name, index, mode: self._repoEntryUpdated())
 
 		# Define a new callback for closing main window
 		self.winfo_toplevel().protocol("WM_DELETE_WINDOW",
-			self.onClosing)
+			self._onClosing)
 
 		# Create components
-		self.createComponents()
+		self._createComponents()
 		# Set the layout
-		self.setLayout()
+		self._setLayout()
 		# Fill the flash list
 		self.fillFlashList()
 
 	# Create all widgets
-	def createComponents(self):
+	def _createComponents(self):
 		# Flash frame
 		self.flashFrame = Frame(self)
 		# Flash label
@@ -52,7 +52,7 @@ class Window(Frame):
 			textvariable=self.flashRoot)
 		# Flash button
 		self.chooseFlashButton = Button(self.flashFrame, text="Open",
-			command=lambda: self.selectDir(self.flashRoot))
+			command=lambda: self._selectDir(self.flashRoot))
 
 		# Repo frame
 		self.repoFrame = Frame(self)
@@ -64,7 +64,7 @@ class Window(Frame):
 			textvariable=self.flashRepo, width=60)
 		# Flash repo button
 		self.chooseRepoButton = Button(self.repoFrame, text="Open",
-			command=lambda: self.selectDir(self.flashRepo))
+			command=lambda: self._selectDir(self.flashRepo))
 
 		# List frame
 		self.listFrame = Frame(self)
@@ -78,7 +78,7 @@ class Window(Frame):
 			command=self.selectFlash)
 
 	# Organize the way to display all widgets
-	def setLayout(self):
+	def _setLayout(self):
 		window = self.winfo_toplevel()
 		window.columnconfigure(0, weight=1)
 		window.rowconfigure(0, weight=1)
@@ -109,14 +109,14 @@ class Window(Frame):
 		self.selectButton.grid(column=0, row=2)
 
 	# Create missing parameters in conf and set them with default values
-	def initConf(self):
+	def _initConf(self):
 		if not self.conf.get("flashRoot"):
 			self.conf["flashRoot"] = "C:"
 		if not self.conf.get("flashRepo"):
 			self.conf["flashRepo"] = "C:/flash_repository"
 
 	# Displays a file dialog to select a directory
-	def selectDir(self, inputEntry):
+	def _selectDir(self, inputEntry):
 		folder = filedialog.askdirectory(
 			parent = self.master,
 			initialdir = "/",
@@ -124,12 +124,16 @@ class Window(Frame):
 
 		inputEntry.set(folder)
 
-	def repoEntryUpdated(self):
+	def _repoEntryUpdated(self):
 		self.fillFlashList()
 		self.conf["flashRepo"] = self.flashRepo.get()
 
-	def flashEntryUpdated(self):
+	def _flashEntryUpdated(self):
 		self.conf["flashRoot"] = self.flashRoot.get()
+
+	def _onClosing(self):
+		self.confMgr.setConf(self.conf, True)
+		self.master.destroy()
 
 	def fillFlashList(self):
 		self.flashList.delete(0, END)
@@ -157,9 +161,6 @@ class Window(Frame):
 				except Exception as e:
 					showerror("Error", e)
 
-	def onClosing(self):
-		self.confMgr.setConf(self.conf, True)
-		self.master.destroy()
 
 # Main
 confMgr = ConfManager("conf.json")
