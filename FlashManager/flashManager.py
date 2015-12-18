@@ -12,9 +12,11 @@ import os
 import shutil
 from utils.confManager import *
 
-class Window:
-	def __init__(self, master, confMgr):
-		self.master = master
+class Window(Frame):
+	def __init__(self, confMgr, master=None):
+		Frame.__init__(self, master)
+		self.grid(sticky=N+S+E+W)
+
 		self.confMgr = confMgr
 		self.conf = confMgr.getConf()
 		self.initConf()
@@ -28,7 +30,8 @@ class Window:
 			lambda name, index, mode: self.repoEntryUpdated())
 
 		# Define a new callback for closing main window
-		self.master.protocol("WM_DELETE_WINDOW", self.onClosing)
+		self.winfo_toplevel().protocol("WM_DELETE_WINDOW",
+			self.onClosing)
 
 		# Create components
 		self.createComponents()
@@ -40,19 +43,19 @@ class Window:
 	# Create all widgets
 	def createComponents(self):
 		# Flash frame
-		self.flashFrame = Frame(self.master)
+		self.flashFrame = Frame(self)
 		# Flash label
 		self.chooseFlashLabel = Label(self.flashFrame,
 			text="Root of the flash directory:")
 		# Flash input
 		self.flashEntry = Entry(self.flashFrame,
-			textvariable=self.flashRoot, width=60)
+			textvariable=self.flashRoot)
 		# Flash button
 		self.chooseFlashButton = Button(self.flashFrame, text="Open",
 			command=lambda: self.selectDir(self.flashRoot))
 
 		# Repo frame
-		self.repoFrame = Frame(self.master)
+		self.repoFrame = Frame(self)
 		# Flash repo label
 		self.chooseRepoLabel = Label(self.repoFrame,
 			text="Flash repository:")
@@ -64,7 +67,7 @@ class Window:
 			command=lambda: self.selectDir(self.flashRepo))
 
 		# List frame
-		self.listFrame = Frame(self.master)
+		self.listFrame = Frame(self)
 		# list label
 		self.listLabel = Label(self.listFrame,
 			text="Flash directories of your repository:")
@@ -76,19 +79,33 @@ class Window:
 
 	# Organize the way to display all widgets
 	def setLayout(self):
-		self.flashFrame.grid(column=0, row=0, padx=5, pady=5)
+		window = self.winfo_toplevel()
+		window.columnconfigure(0, weight=1)
+		window.rowconfigure(0, weight=1)
+		self.columnconfigure(0, weight=1)
+		self.rowconfigure(2, weight=1)
+
+		self.flashFrame.columnconfigure(0, weight=1)
+		self.flashFrame.grid(column=0, row=0, padx=5, pady=5, sticky=E+W)
 		self.chooseFlashLabel.grid (column=0, row=0, sticky=NW)
-		self.flashEntry.grid       (column=0, row=1)
+		self.flashEntry.columnconfigure(0, weight=1)
+		self.flashEntry.grid       (column=0, row=1, sticky=E+W)
 		self.chooseFlashButton.grid(column=1, row=1)
 
-		self.repoFrame.grid(column=0, row=1, padx=5, pady=5)
+		self.repoFrame.columnconfigure(0, weight=1)
+		self.repoFrame.grid(column=0, row=1, padx=5, pady=5, sticky=E+W)
 		self.chooseRepoLabel.grid (column=0, row=0, sticky=NW)
-		self.repoEntry.grid       (column=0, row=1)
+		self.repoEntry.columnconfigure(0, weight=1)
+		self.repoEntry.grid       (column=0, row=1, sticky=E+W)
 		self.chooseRepoButton.grid(column=1, row=1)
 
-		self.listFrame.grid(column=0, row=2, padx=5, pady=5, sticky=NW)
+		self.listFrame.columnconfigure(0, weight=1)
+		self.listFrame.rowconfigure(1, weight=1)
+		self.listFrame.grid(column=0, row=2, padx=5, pady=5, sticky=N+S+E+W)
 		self.listLabel.grid   (column=0, row=0, sticky=NW)	
-		self.flashList.grid   (column=0, row=1)
+		self.flashList.columnconfigure(0, weight=1)
+		self.flashList.rowconfigure(0, weight=1)
+		self.flashList.grid   (column=0, row=1, sticky=N+S+E+W)
 		self.selectButton.grid(column=0, row=2)
 
 	# Create missing parameters in conf and set them with default values
@@ -146,7 +163,7 @@ class Window:
 
 # Main
 confMgr = ConfManager("conf.json")
-root = Tk()
-root.title("Flash manager")
-window = Window(root, confMgr)
-root.mainloop()
+
+window = Window(confMgr)
+window.master.title("Flash manager")
+window.master.mainloop()
