@@ -3,7 +3,9 @@
 
 import sys
 # Add my python workspace for Windows
-sys.path.insert(0, "C:/Workspace/Python")
+if sys.platform == "win32":
+	sys.path.insert(0, "C:/Workspace/Python")
+# TODO: add it for my workspace on Linux
 
 from tkinter import * 
 from tkinter import filedialog
