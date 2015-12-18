@@ -27,52 +27,69 @@ class Window:
 		self.flashRepo.trace("w",
 			lambda name, index, mode: self.repoEntryUpdated())
 
+		# Define a new callback for closing main window
+		self.master.protocol("WM_DELETE_WINDOW", self.onClosing)
+
+		# Create components
+		self.createComponents()
+		# Set the layout
+		self.setLayout()
+		# Fill the flash list
+		self.fillFlashList()
+
+	# Create all widgets
+	def createComponents(self):
 		# Flash frame
-		self.flashFrame = Frame(master)
-		self.flashFrame.pack()
+		self.flashFrame = Frame(self.master)
 		# Flash label
-		self.chooseFlashLabel = Label(self.flashFrame, text="Root of the flash directory:")
-		self.chooseFlashLabel.pack(side=TOP, anchor=NW)
+		self.chooseFlashLabel = Label(self.flashFrame,
+			text="Root of the flash directory:")
 		# Flash input
-		self.flashEntry = Entry(self.flashFrame, textvariable=self.flashRoot,
-			width=60)
-		self.flashEntry.pack(side=LEFT)
+		self.flashEntry = Entry(self.flashFrame,
+			textvariable=self.flashRoot, width=60)
 		# Flash button
 		self.chooseFlashButton = Button(self.flashFrame, text="Open",
 			command=lambda: self.selectDir(self.flashRoot))
-		self.chooseFlashButton.pack(side=RIGHT)
 
 		# Repo frame
-		self.repoFrame = Frame(master)
-		self.repoFrame.pack()
+		self.repoFrame = Frame(self.master)
 		# Flash repo label
-		self.chooseRepoLabel = Label(self.repoFrame, text="Flash repository:")
-		self.chooseRepoLabel.pack(side=TOP, anchor=NW)
+		self.chooseRepoLabel = Label(self.repoFrame,
+			text="Flash repository:")
 		# Flash repo input
-		self.repoEntry = Entry(self.repoFrame, textvariable=self.flashRepo, width=60)
-		self.repoEntry.pack(side=LEFT)
+		self.repoEntry = Entry(self.repoFrame,
+			textvariable=self.flashRepo, width=60)
 		# Flash repo button
 		self.chooseRepoButton = Button(self.repoFrame, text="Open",
 			command=lambda: self.selectDir(self.flashRepo))
-		self.chooseRepoButton.pack(side=RIGHT)
 
 		# List frame
-		self.listFrame = Frame(master)
-		self.listFrame.pack(anchor=NW)
+		self.listFrame = Frame(self.master)
 		# list label
-		self.listLabel = Label(self.listFrame, text="Select the flash you need:")
-		self.listLabel.pack(anchor=NW)		
+		self.listLabel = Label(self.listFrame,
+			text="Flash directories of your repository:")
 		# List of flash directories
 		self.flashList = Listbox(self.listFrame, width=60)
-		self.flashList.pack()
 		# Select button
 		self.selectButton = Button(self.listFrame, text="Select",
 			command=self.selectFlash)
-		self.selectButton.pack()
 
-		self.fillFlashList()
+	# Organize the way to display all widgets
+	def setLayout(self):
+		self.flashFrame.grid(column=0, row=0, padx=5, pady=5)
+		self.chooseFlashLabel.grid (column=0, row=0, sticky=NW)
+		self.flashEntry.grid       (column=0, row=1)
+		self.chooseFlashButton.grid(column=1, row=1)
 
-		self.master.protocol("WM_DELETE_WINDOW", self.onClosing)
+		self.repoFrame.grid(column=0, row=1, padx=5, pady=5)
+		self.chooseRepoLabel.grid (column=0, row=0, sticky=NW)
+		self.repoEntry.grid       (column=0, row=1)
+		self.chooseRepoButton.grid(column=1, row=1)
+
+		self.listFrame.grid(column=0, row=2, padx=5, pady=5, sticky=NW)
+		self.listLabel.grid   (column=0, row=0, sticky=NW)	
+		self.flashList.grid   (column=0, row=1)
+		self.selectButton.grid(column=0, row=2)
 
 	# Create missing parameters in conf and set them with default values
 	def initConf(self):
