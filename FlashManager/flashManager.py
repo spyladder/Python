@@ -5,7 +5,8 @@ import sys
 # Add my python workspace for Windows
 if sys.platform == "win32":
 	sys.path.insert(0, "C:/Workspace/Python")
-# TODO: add it for my workspace on Linux
+elif sys.platform == "linux":
+	sys.path.insert(0, "/home/julien/Workspace/Python")
 
 from tkinter import * 
 from tkinter import filedialog
@@ -154,7 +155,8 @@ class Window(Frame):
 			flashDir = self.flashRoot.get() + "/flash"
 
 			try:
-				shutil.rmtree(flashDir)
+				if os.path.exists(flashDir):
+					shutil.rmtree(flashDir)
 			except Exception as e:
 				showerror("Error", e)
 			else:
